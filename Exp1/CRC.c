@@ -11,14 +11,29 @@ int data_length;
 int i;
 int j;
 
-void XOR() {
+void XOR()
+/**
+ * Perform XOR operation bitwise on check_val array based on gen_poly array.
+ * 
+ * @param N The length of the arrays
+ */ 
+{
     // Perform the XOR operation bitwise
     for (i = 1; i < N; i++) {
         check_val[i] = (check_val[i] == gen_poly[i]) ? '0' : '1';
     }
 }
 
-void crc() {
+void crc() 
+/**
+ * Perform Cyclic Redundancy Check (CRC) on the data using the specified polynomial.
+ * 
+ * Initialize the check value with the initial data segment and perform modulo 2 division to obtain the remainder.
+ * 
+ * @param N The length of the arrays
+ * @param data_length The length of the data
+ */
+{
     // Initialize the check value with the initial data segment
     for (i = 0; i < N; i++) {
         check_val[i] = data[i];
@@ -41,7 +56,11 @@ void crc() {
     }
 }
 
-void receiver() {
+void receiver()
+/**
+ * Receive the data, perform cyclic redundancy check, and check for transmission errors.
+ */
+{
     // Obtain the received data
     printf("Enter the received data: ");
     scanf("%s", data);
@@ -60,7 +79,15 @@ void receiver() {
     printf("No Error in transmission\n");
 }
 
-int main() {
+int main()
+/**
+ * Main function to handle the transmission of data using CRC (Cyclic Redundancy Check).
+ * Prompts user to enter data and generator polynomial, pads zeros to data, performs CRC, 
+ * computes check value, appends data with check value, and calls receiver to check for errors.
+ * 
+ * @return 0 indicating successful execution
+ */ 
+{
     printf("Enter the data to be transmitted: ");
     scanf("%s", data);
 
