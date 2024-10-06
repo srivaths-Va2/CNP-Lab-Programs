@@ -1,133 +1,97 @@
-#include<stdio.h>
-#include<string.h>
+#include <stdio.h>
+#include <string.h>
 
-char check_val[100];
-char gen_poly[100];
-char data[100];
+#define MAX_DATA_LEN 200 // Maximum data length
+#define MAX_GEN_LEN 100  // Maximum generator polynomial length
 
-int N;  // Length of the generator polynomial
-int data_length;
-
-int i;
-int j;
-
-void XOR()
+void xorOperation(char *data, char *gen, int len)
 /**
- * Perform XOR operation bitwise on check_val array based on gen_poly array.
+ * Performs XOR operation between the data and generator strings of a specified length.
  * 
- * @param N The length of the arrays
- */ 
+ * @param data The data string to perform XOR operation on
+ * @param gen The generator string used for XOR operation
+ * @param len The length of the strings to process
+ */
 {
-    // Perform the XOR operation bitwise
-    for (i = 1; i < N; i++) {
-        check_val[i] = (check_val[i] == gen_poly[i]) ? '0' : '1';
+    for (int i = 0; i < len; i++) {
+        data[i] = (data[i] == gen[i]) ? '0' : '1';
     }
 }
 
-void crc() 
+void calculateCRC(char *data, char *gen, int dataLen, int genLen) 
 /**
- * Perform Cyclic Redundancy Check (CRC) on the data using the specified polynomial.
+ * Calculates the CRC value for the given data using the specified generator polynomial.
  * 
- * Initialize the check value with the initial data segment and perform modulo 2 division to obtain the remainder.
- * 
- * @param N The length of the arrays
- * @param data_length The length of the data
+ * @param data The data string for CRC calculation
+ * @param gen The generator polynomial used for CRC calculation
+ * @param dataLen The length of the data string
+ * @param genLen The length of the generator polynomial
  */
 {
-    // Initialize the check value with the initial data segment
-    for (i = 0; i < N; i++) {
-        check_val[i] = data[i];
+    // Allocate arrays with sufficient sizes
+    char temp[MAX_DATA_LEN + MAX_GEN_LEN];
+    strcpy(temp, data);
+    
+    // Append zeros equal to the length of the generator polynomial minus 1
+    for (int i = 0; i < genLen - 1; i++) {
+        temp[dataLen + i] = '0';
     }
-
-    // Perform the modulo 2 division to obtain the remainder
-    for (i = N; i <= data_length + N - 1; i++) {
-        // Check if the first bit is 1. If it is 1, call the XOR function
-        if (check_val[0] == '1') {
-            XOR();
+    temp[dataLen + genLen - 1] = '\0';
+    
+    // Perform division using XOR
+    for (int i = 0; i <= dataLen - 1; i++) {
+        if (temp[i] == '1') {
+            xorOperation(temp + i, gen, genLen);
         }
-
-        // Shift the bits one position to the left for the next computation
-        for (j = 0; j < N - 1; j++) {
-            check_val[j] = check_val[j + 1];
-        }
-
-        // Append a bit from the data (or '0' if we've gone past the data length)
-        check_val[j] = (i < data_length) ? data[i] : '0';
     }
-}
-
-void receiver()
-/**
- * Receive the data, perform cyclic redundancy check, and check for transmission errors.
- */
-{
-    // Obtain the received data
-    printf("Enter the received data: ");
-    scanf("%s", data);
+    
+    // The CRC value is the last genLen-1 bits of temp
+    printf("CRC value: ");
+    for (int i = dataLen; i < dataLen + genLen - 1; i++) {
+        printf("%c", temp[i]);
+    }
     printf("\n");
-
-    // Perform the cyclic redundancy check
-    crc();
-
-    // Check the output to see if an error occurred during transmission
-    for (i = 0; i < N - 1; i++) {
-        if (check_val[i] == '1') {
-            printf("Error occurred during transmission!\n");
-            return;
-        }
+    
+    // Append CRC to the data
+    for (int i = dataLen; i < dataLen + genLen - 1; i++) {
+        data[i] = temp[i];
     }
-    printf("No Error in transmission\n");
+    data[dataLen + genLen - 1] = '\0';
 }
 
 int main()
 /**
- * Main function to handle the transmission of data using CRC (Cyclic Redundancy Check).
- * Prompts user to enter data and generator polynomial, pads zeros to data, performs CRC, 
- * computes check value, appends data with check value, and calls receiver to check for errors.
- * 
- * @return 0 indicating successful execution
- */ 
+ * Main function to calculate and verify CRC for data transmission.
+ */
 {
-    printf("Enter the data to be transmitted: ");
+    char data[MAX_DATA_LEN], gen[MAX_GEN_LEN], received[MAX_DATA_LEN + MAX_GEN_LEN];
+    int dataLen, genLen;
+
+    // Input data sequence and generator polynomial
+    printf("Enter the data sequence in binary: ");
     scanf("%s", data);
+    printf("Enter the generator polynomial in binary: ");
+    scanf("%s", gen);
 
-    printf("Enter the Generator polynomial: ");
-    scanf("%s", gen_poly);
+    dataLen = strlen(data);
+    genLen = strlen(gen);
 
-    N = strlen(gen_poly);  // Calculate the length of the generator polynomial
-    data_length = strlen(data);
+    // Calculate CRC
+    calculateCRC(data, gen, dataLen, genLen);
 
-    // Append N-1 zeros to data
-    for (i = data_length; i < data_length + N - 1; i++) {
-        data[i] = '0';
-    }
-    data[i] = '\0';  // Null-terminate the string
-
-    printf("Data with padded zeros: %s\n", data);
-    printf("--------------------------------------\n");
-
-    // Perform CRC
-    crc();
-
-    // Print the computed check value
-    printf("CRC check value: ");
-    for (i = 0; i < N - 1; i++) {
-        printf("%c", check_val[i]);
-    }
-    printf("\n--------------------------------------\n");
-
-    // Append data with the check value
-    for (i = data_length; i < data_length + N - 1; i++) {
-        data[i] = check_val[i - data_length];
-    }
-    data[i] = '\0';  // Null-terminate the string
-
-    // Print final data to be sent
+    // Output the data to be transmitted (data + CRC)
     printf("Data to be transmitted: %s\n", data);
-    printf("--------------------------------------\n");
 
-    // Calling receiver to check for errors
-    receiver();
+    // Input the data received at the receiver
+    printf("Enter the received data: ");
+    scanf("%s", received);
+
+    // Check if received data is the same as transmitted data
+    if (strcmp(data, received) == 0) {
+        printf("Data transmission successful!\n");
+    } else {
+        printf("Data was corrupted during transmission!\n");
+    }
 
     return 0;
 }
