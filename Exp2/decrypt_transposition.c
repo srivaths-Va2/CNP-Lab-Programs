@@ -12,35 +12,33 @@ void decrypt_transposition(char inp[], int N)
  * @param N The length of the input string
  */
 {   
-    int idx = 0;        // current index of output string
-    char out[50];       // output array
+    int idx = 0;        // current index for reading the encrypted string
+    char out[50];       // output array for decrypted string
 
-    // for rail 1
-    for(int i = 0; i < N; i = i + 3)
-    {
-        out[idx] = inp[i];
-        idx++;
+    int rail_1_size = (N + 2) / 3; // Number of characters in the 1st rail
+    int rail_2_size = (N + 1) / 3; // Number of characters in the 2nd rail
+    int rail_3_size = N / 3;       // Number of characters in the 3rd rail
+
+    // For rail 1 (positions 0, 3, 6, ...)
+    for(int i = 0; i < rail_1_size; i++) {
+        out[i * 3] = inp[idx++];
     }
 
-    // for rail 2
-    for(int i = 1; i < N; i = i + 3)
-    {
-        out[idx] = inp[i];
-        idx++;
+    // For rail 2 (positions 1, 4, 7, ...)
+    for(int i = 0; i < rail_2_size; i++) {
+        out[i * 3 + 1] = inp[idx++];
     }
 
-    // for rail 3
-    for(int i = 2; i < N; i = i + 3)
-    {
-        out[idx] = inp[i];
-        idx++;
+    // For rail 3 (positions 2, 5, 8, ...)
+    for(int i = 0; i < rail_3_size; i++) {
+        out[i * 3 + 2] = inp[idx++];
     }
 
     // adding null character
-    out[idx++] = '\0';
+    out[N] = '\0';
 
     // printing the output
-    printf("Decrypted string : %s", out);
+    printf("Decrypted string : %s\n", out);
 }
 
 void main()
@@ -51,8 +49,8 @@ void main()
  * @param N The length of the input string
  */
 {
-    char input[8] = "svhrasit";
-    int len = 8;
+    char input[50] = "hehgdnrhtei eo d erdt luet e";
+    int len = strlen(input);
 
     decrypt_transposition(input, len);
 }
