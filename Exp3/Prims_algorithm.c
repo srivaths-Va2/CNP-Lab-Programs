@@ -46,8 +46,27 @@ void prims(edge g[], int N, int total_vertices)
     int vtx_arr[20];        // temporary array to hold the vertices that form the MST
     int idx_arr = 0;
 
+    // Find the edge with minimum weight to start
+    int min_edge_idx = -1;
+    int minimum_wt = 1000;
+
+    for (int i = 0; i < N; i++)
+    {
+        if (g[i].wgt < minimum_wt)
+        {
+            minimum_wt = g[i].wgt;
+            min_edge_idx = i;
+        }
+    }
+
+    if (min_edge_idx == -1)
+    {
+        printf("No edges available\n");
+        return;
+    }
+
     // Add the seed vertex (selecting the one connected to the minimum weight edge)
-    vtx_arr[idx_arr++] = g[0].src;  // Start with the first vertex
+    vtx_arr[idx_arr++] = g[min_edge_idx].src;  // Start with the first vertex
 
     // Continue until we have N-1 edges in MST or all vertices are added
     while (idx < total_vertices - 1)
@@ -84,6 +103,7 @@ void prims(edge g[], int N, int total_vertices)
         // If no edge is found, break the loop
         if (edge_idx == -1)
         {
+            printf("The graph is disconnected and no MST can be formed!");
             break;
         }
 
