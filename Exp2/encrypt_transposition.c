@@ -51,8 +51,8 @@ void main()
  * @param N The length of the input string
  */
 {
-    char input[8] = "srivaths";
-    int len = 8;
+    char input[50] = "srivaths";
+    int len = strlen(input);
 
     encrypt_transposition(input, len);
 }

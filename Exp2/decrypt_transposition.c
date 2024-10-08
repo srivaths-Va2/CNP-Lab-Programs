@@ -49,7 +49,7 @@ void main()
  * @param N The length of the input string
  */
 {
-    char input[50] = "hehgdnrhtei eo d erdt luet e";
+    char input[50] = "Hehgdnrhtei eo d erdt luet e";
     int len = strlen(input);
 
     decrypt_transposition(input, len);
